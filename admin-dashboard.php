@@ -4,7 +4,9 @@ require_once 'db.php';  // Include the database connection
 // Fetch the total number of songs and categories
 $totalSongsStmt = $pdo->query("SELECT COUNT(*) FROM songs");
 $totalSongs = $totalSongsStmt->fetchColumn();
-
+// Fetch all songs
+$songsStmt = $pdo->query("SELECT * FROM songs ORDER BY id DESC");
+$songs = $songsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -14,6 +16,8 @@ $totalSongs = $totalSongsStmt->fetchColumn();
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="main.js"></script>
   <style>
     /* General Styles */
     body {
@@ -106,6 +110,35 @@ $totalSongs = $totalSongsStmt->fetchColumn();
       text-decoration: underline;
     }
 
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
     /* Responsive Styles */
     @media (max-width: 768px) {
       .stats {
@@ -142,12 +175,102 @@ $totalSongs = $totalSongsStmt->fetchColumn();
         <p></p>
       </div>
     </section>
+    </section>
 
     <section class="admin-links">
       <a href="add-song.php" class="admin-btn">➕ Add New Song</a>
-      <a href="manage-songs.php" class="admin-btn">📋 Manage Songs</a>
-      <a href="manage-categories.php" class="admin-btn">📂 Manage Categories</a>
+      
     </section>
+
+    <section class="song-list" style="margin: 40px 20px;">
+      <h2>🎵 Songs List</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+          <tr style="background-color: #3498db; color: white;">
+            <th style="padding: 10px;">ID</th>
+            <th style="padding: 10px;">Title</th>
+            <th style="padding: 10px;">Artist</th>
+            <th style="padding: 10px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($songs as $song): ?>
+            <tr style="background-color: #fff; border-bottom: 1px solid #ddd;">
+              <td style="padding: 10px;"><?php echo $song['id']; ?></td>
+              <td style="padding: 10px;"><?php echo htmlspecialchars($song['title']); ?></td>
+              <td style="padding: 10px;"><?php echo htmlspecialchars($song['artist']); ?></td>
+              <td style="padding: 10px;">
+                <a href="#" class="edit-btn" data-id="<?php echo $song['id']; ?>" data-title="<?php echo htmlspecialchars($song['title']); ?>" data-artist="<?php echo htmlspecialchars($song['artist']); ?>">✏️ Edit</a>
+                <a href="#" class="delete-btn" data-id="<?php echo $song['id']; ?>">🗑️ Delete</a>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Edit Song Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('editModal')">&times;</span>
+        <h2>Edit Song</h2>
+        <form id="editForm" method="POST" action="update-song.php">
+          <input type="hidden" name="id" id="edit-id">
+          <label>Title:</label>
+          <input type="text" name="title" id="edit-title" required><br>
+          <label>Artist:</label>
+          <input type="text" name="artist" id="edit-artist" required><br>
+          <button type="submit">Update</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Song Modal -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('deleteModal')">&times;</span>
+        <h2>Confirm Delete</h2>
+        <p>Are you sure you want to delete this song?</p>
+        <form method="POST" action="delete-song.php">
+          <input type="hidden" name="id" id="delete-id">
+          <button type="submit" style="background-color: #e74c3c; color: white;">Yes, Delete</button>
+          <button type="button" onclick="closeModal('deleteModal')">Cancel</button>
+        </form>
+      </div>
+    </div>
+
   </main>
+
+  <script>
+    // JavaScript for handling modal actions
+    document.addEventListener('DOMContentLoaded', () => {
+      const editBtns = document.querySelectorAll('.edit-btn');
+      const deleteBtns = document.querySelectorAll('.delete-btn');
+
+      // Open Edit Modal and populate the fields
+      editBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.getElementById('edit-id').value = this.dataset.id;
+          document.getElementById('edit-title').value = this.dataset.title;
+          document.getElementById('edit-artist').value = this.dataset.artist;
+          document.getElementById('editModal').style.display = 'flex';
+        });
+      });
+
+      // Open Delete Modal and set song ID
+      deleteBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.getElementById('delete-id').value = this.dataset.id;
+          document.getElementById('deleteModal').style.display = 'flex';
+        });
+      });
+
+      // Close Modals
+      window.closeModal = function(id) {
+        document.getElementById(id).style.display = 'none';
+      };
+    });
+  </script>
+
 </body>
 </html>

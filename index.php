@@ -1,3 +1,42 @@
+<?php
+// Define the function to get songs from the database
+function getSongsFromDatabase() {
+    // Database connection parameters
+    $servername = "localhost"; // Your server (localhost for local development)
+    $username = "root";        // Your MySQL username
+    $password = "";            // Your MySQL password (leave empty for XAMPP default)
+    $dbname = "music_playlist"; // Your database name
+
+    // Create a connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // SQL query to get the songs
+    $sql = "SELECT title, cover_image FROM songs";
+    $result = $conn->query($sql);
+
+    // Check if there are results
+    if ($result->num_rows > 0) {
+        // Fetch all rows
+        $songs = [];
+        while($row = $result->fetch_assoc()) {
+            $songs[] = $row;
+        }
+        return $songs; // Return the song data
+    } else {
+        return []; // Return an empty array if no songs are found
+    }
+
+    // Close the connection
+    $conn->close();
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

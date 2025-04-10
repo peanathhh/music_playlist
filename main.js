@@ -13,3 +13,25 @@ function filterSongs() {
     });
   }
   
+  const editBtns = document.querySelectorAll('.edit-btn');
+  const deleteBtns = document.querySelectorAll('.delete-btn');
+
+  editBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.getElementById('edit-id').value = this.dataset.id;
+      document.getElementById('edit-title').value = this.dataset.title;
+      document.getElementById('edit-artist').value = this.dataset.artist;
+      document.getElementById('editModal').style.display = 'flex';
+    });
+  });
+
+  deleteBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.getElementById('delete-id').value = this.dataset.id;
+      document.getElementById('deleteModal').style.display = 'flex';
+    });
+  });
+
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }

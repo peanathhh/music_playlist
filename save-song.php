@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Handle file uploads (cover image)
     $cover = $_FILES['cover']['name'];
     $coverTmpName = $_FILES['cover']['tmp_name'];
-    $coverDestination = 'uploads/' . $cover;
+    $coverDestination = 'upload/images/' . $cover;
     move_uploaded_file($coverTmpName, $coverDestination);
 
     // Save to database (example with PDO)
