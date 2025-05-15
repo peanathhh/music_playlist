@@ -4,6 +4,12 @@ if (!isset($_SESSION["logged_in"])) {
   header("Location: login.html");
   exit;
 }
+
+require_once 'db.php';
+
+// Fetch categories from DB
+$stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC");
+$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -31,11 +37,11 @@ if (!isset($_SESSION["logged_in"])) {
       <label for="category">Category:</label>
       <select name="category" id="category" required>
         <option value="">Select Category</option>
-        <option value="Pop">Pop</option>
-        <option value="Rock">Rock</option>
-        <option value="Hip Hop">Hip Hop</option>
-        <!-- Add more categories if needed -->
+        <?php foreach ($categories as $cat): ?>
+          <option value="<?= htmlspecialchars($cat['id']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
+        <?php endforeach; ?>
       </select>
+
 
       <label for="lyrics">Lyrics:</label>
       <textarea name="lyrics" id="lyrics" rows="6" required></textarea>
